@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import api from "../../api/axios";
 
 const emptyForm = {
   name: '',
@@ -15,8 +16,34 @@ export default function ProductFormModal({ open, onClose, onSubmit, categories, 
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    setForm(initialData ? { ...emptyForm, ...initialData } : emptyForm);
-  }, [initialData, open]);
+    async function initializeForm() {
+      if (!open) return;
+
+      // Edit mode
+      if (initialData) {
+        setForm({
+          ...emptyForm,
+          ...initialData,
+        });
+        return;
+      }
+
+      // Add mode
+      try {
+        const { data } = await api.get("/products/generate-barcode");
+
+        setForm({
+          ...emptyForm,
+          barcode: data.barcode,
+        });
+      } catch (err) {
+        console.error(err);
+        setForm(emptyForm);
+      }
+    }
+
+    initializeForm();
+  }, [open, initialData]);
 
   if (!open) return null;
 

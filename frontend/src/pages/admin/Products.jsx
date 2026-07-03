@@ -194,7 +194,10 @@ export default function Products() {
 
       <ProductFormModal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null); }}
+        onClose={() => {
+          setModalOpen(false);
+          setEditing(null);
+        }}
         onSubmit={handleSave}
         categories={categories}
         initialData={editing}

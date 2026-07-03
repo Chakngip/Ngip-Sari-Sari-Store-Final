@@ -87,6 +87,37 @@ async function getProduct(req, res, next) {
   }
 }
 
+//Barcode generator
+async function generateUniqueBarcode() {
+  while (true) {
+    // Generate a 13-digit barcode
+    const barcode =
+      Date.now().toString() +
+      Math.floor(Math.random() * 1000)
+        .toString()
+        .padStart(3, "0");
+
+    const existing = await Product.findOne({
+      where: { barcode },
+    });
+
+    if (!existing) {
+      return barcode;
+    }
+  }
+}
+async function generateBarcode(req, res, next) {
+  try {
+    const barcode = await generateUniqueBarcode();
+
+    res.json({
+      barcode,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // POST /api/products  (admin only)
 async function createProduct(req, res, next) {
   try {
@@ -168,5 +199,5 @@ async function lowStockProducts(req, res, next) {
 }
 
 module.exports = {
-  listProducts, getProduct, createProduct, updateProduct, deleteProduct, lowStockProducts,
+  listProducts, getProduct, createProduct, updateProduct, deleteProduct, lowStockProducts, generateBarcode
 };
