@@ -104,7 +104,7 @@ async function dashboardStats(req, res, next) {
 // GET /api/admin/orders?status=&source=  (admin only) — all orders, online + POS
 async function listOrders(req, res, next) {
   try {
-    const { status, source, startDate, endDate } = req.query;
+    const { status, order_source, startDate, endDate, search } = req.query;
 
     const where = {};
 
@@ -114,8 +114,8 @@ async function listOrders(req, res, next) {
     }
 
     // Source Filter
-    if (source) {
-      where.order_source = source;
+    if (order_source) {
+      where.order_source = order_source;
     }
 
     // Date Filter
@@ -135,7 +135,32 @@ async function listOrders(req, res, next) {
     console.log("Where:", where);
 
     const orders = await Order.findAll({
-      where,
+      where: {
+        ...where,
+
+        ...(search
+          ? {
+              [Op.or]: [
+                {
+                  receipt_number: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  "$customer.name$": {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  "$cashier.name$": {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+
       include: [
         {
           model: OrderItem,
@@ -145,13 +170,16 @@ async function listOrders(req, res, next) {
           model: User,
           as: "customer",
           attributes: ["id", "name", "email"],
+          required: false,
         },
         {
           model: User,
           as: "cashier",
           attributes: ["id", "name"],
+          required: false,
         },
       ],
+
       order: [["createdAt", "DESC"]],
     });
 
@@ -195,7 +223,44 @@ async function updateOrderStatus(req, res, next) {
   }
 }
 
+async function getOrderSummary(req, res, next) {
+  try {
+    const orders = await Order.findAll({
+      attributes: ["status", "order_source"],
+    });
+
+    const summary = {
+      pending: 0,
+      preparing: 0,
+      out_for_delivery: 0,
+      completed: 0,
+      cancelled: 0,
+      pos: 0,
+      online: 0,
+    };
+
+    orders.forEach((order) => {
+      if (summary.hasOwnProperty(order.status)) {
+        summary[order.status]++;
+      }
+
+      if (order.order_source === "pos") {
+        summary.pos++;
+      }
+
+      if (order.order_source === "online") {
+        summary.online++;
+      }
+    });
+
+    res.json(summary);
+
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createCashier, listCashiers, setCashierStatus, cashierShiftHistory, dashboardStats,
-  listOrders, updateOrderStatus,
+  listOrders, updateOrderStatus, getOrderSummary,
 };

@@ -1,0 +1,20 @@
+INSERT INTO categories (id, name, created_at, updated_at)
+VALUES
+(gen_random_uuid(),'Rice',NOW(),NOW()),
+(gen_random_uuid(),'Canned Goods',NOW(),NOW()),
+(gen_random_uuid(),'Instant Noodles',NOW(),NOW()),
+(gen_random_uuid(),'Coffee & Beverages',NOW(),NOW()),
+(gen_random_uuid(),'Soda Drinks',NOW(),NOW()),
+(gen_random_uuid(),'Adult Beverages',NOW(),NOW()),
+(gen_random_uuid(),'Biscuits & Snacks',NOW(),NOW()),
+(gen_random_uuid(),'Chocolates & Candies',NOW(),NOW()),
+(gen_random_uuid(),'Dairy Products',NOW(),NOW()),
+(gen_random_uuid(),'Frozen Foods',NOW(),NOW()),
+(gen_random_uuid(),'Bread & Bakery',NOW(),NOW()),
+(gen_random_uuid(),'Condiments & Seasoning',NOW(),NOW()),
+(gen_random_uuid(),'Cooking Essentials',NOW(),NOW()),
+(gen_random_uuid(),'Personal Care',NOW(),NOW()),
+(gen_random_uuid(),'Household Supplies',NOW(),NOW()),
+(gen_random_uuid(),'Baby Care',NOW(),NOW()),
+(gen_random_uuid(),'Pet Supplies',NOW(),NOW()),
+(gen_random_uuid(),'School & Office Supplies',NOW(),NOW());

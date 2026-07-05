@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const {
   createCashier, listCashiers, setCashierStatus, cashierShiftHistory, dashboardStats,
-  listOrders, updateOrderStatus,
+  listOrders, updateOrderStatus,getOrderSummary,
 } = require('../controllers/adminController');
 const { listUsers, getUser, setUserStatus } = require('../controllers/usersController');
 const { getSettings, updateSettings } = require('../controllers/settingsController');
@@ -17,6 +17,7 @@ router.get('/cashiers', listCashiers);
 router.put('/cashiers/:id/status', setCashierStatus);
 router.get('/cashiers/:id/shifts', cashierShiftHistory);
 
+router.get("/orders/summary", getOrderSummary);
 router.get('/orders', listOrders);
 router.put('/orders/:id/status', updateOrderStatus);
 

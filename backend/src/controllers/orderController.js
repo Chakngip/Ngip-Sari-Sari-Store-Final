@@ -108,14 +108,16 @@ async function listAllOrders(req, res, next) {
   console.log("Query:", req.query);
 
   try {
-    const { status, startDate, endDate } = req.query;
+    const { status, startDate, endDate, order_source } = req.query;
 
     const where = {};
+    if (status) { where.status = status; }
+    console.log("order_source =", order_source);
 
-    if (status) {
-      where.status = status;
+    if (order_source) {
+      console.log("Applying source filter...");
+      where.order_source = order_source;
     }
-
     if (startDate && endDate) {
       const start = new Date(startDate);
       start.setHours(0, 0, 0, 0);
