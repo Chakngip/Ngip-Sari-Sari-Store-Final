@@ -68,33 +68,100 @@ async function cashierShiftHistory(req, res, next) {
 async function dashboardStats(req, res, next) {
   try {
     const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
 
-    const [totalProducts, totalCustomers, totalCashiers, ordersToday, allOrders] = await Promise.all([
+    const [
+      totalProducts,
+      totalCustomers,
+      totalCashiers,
+      ordersToday,
+      allOrders,
+    ] = await Promise.all([
       Product.count({ where: { is_active: true } }),
-      User.count({ where: { role: 'customer' } }),
-      User.count({ where: { role: 'cashier' } }),
-      Order.count({ where: { createdAt: { [Op.gte]: startOfDay } } }),
-      Order.findAll({ where: { status: { [Op.notIn]: ['cancelled'] } } }),
+      User.count({ where: { role: "customer" } }),
+      User.count({ where: { role: "cashier" } }),
+      Order.count({
+        where: {
+          createdAt: { [Op.gte]: startOfDay },
+        },
+      }),
+      Order.findAll({
+        where: {
+          status: {
+            [Op.notIn]: ["cancelled"],
+          },
+        },
+      }),
     ]);
 
-    const salesToday = await Order.sum('total_amount', {
-      where: { createdAt: { [Op.gte]: startOfDay }, status: { [Op.notIn]: ['cancelled'] } },
+    const salesToday =
+      (await Order.sum("total_amount", {
+        where: {
+          createdAt: { [Op.gte]: startOfDay },
+          status: {
+            [Op.notIn]: ["cancelled"],
+          },
+        },
+      })) || 0;
+
+    const onlineSales = allOrders
+      .filter((o) => o.order_source === "online")
+      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+
+    const posSales = allOrders
+      .filter((o) => o.order_source === "pos")
+      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+
+    // NEW
+    const recentOrders = await Order.findAll({
+      limit: 5,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "customer",
+          attributes: ["name"],
+        },
+        {
+          model: User,
+          as: "cashier",
+          attributes: ["name"],
+        },
+      ],
     });
 
-    const onlineSales = allOrders.filter((o) => o.order_source === 'online')
-      .reduce((sum, o) => sum + Number(o.total_amount), 0);
-    const posSales = allOrders.filter((o) => o.order_source === 'pos')
-      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+    const lowStockProducts = await Product.findAll({
+      where: {
+        stock_qty: {
+          [Op.lte]: 10,
+        },
+      },
+      order: [["stock_qty", "ASC"]],
+      limit: 5,
+    });
+
+    const pendingOrders = await Order.count({
+      where: {
+        status: "pending",
+      },
+    });
 
     res.json({
       totalProducts,
       totalCustomers,
       totalCashiers,
       ordersToday,
-      salesToday: salesToday || 0,
+      salesToday,
       lifetimeOnlineSales: onlineSales,
       lifetimePosSales: posSales,
+
+      pendingOrders,
+      recentOrders,
+      lowStockProducts,
     });
   } catch (err) {
     next(err);
