@@ -44,6 +44,7 @@ async function register(req, res, next) {
         role: user.role,
         email: user.email,
         phone: user.phone,
+        theme: user.theme,
       },
     });
   } catch (err) {
@@ -98,6 +99,7 @@ async function login(req, res, next) {
         role: user.role,
         email: user.email,
         phone: user.phone,
+        theme: user.theme,
       },
     });
   } catch (err) {
@@ -117,6 +119,7 @@ async function me(req, res, next) {
         'role',
         'address',
         'is_active',
+        'theme',
       ],
     });
 
@@ -132,4 +135,41 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { register, login, me };
+async function updateTheme(req, res, next) {
+  try {
+    const { theme } = req.body;
+
+    if (!["light", "dark"].includes(theme)) {
+      return res.status(400).json({
+        message: "Invalid theme",
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.theme = theme;
+
+    await user.save();
+
+    res.json({
+      message: "Theme updated successfully",
+      theme: user.theme,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  register,
+  login,
+  me,
+  updateTheme,
+};

@@ -5,15 +5,16 @@ import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import './index.css';
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <AuthProvider>
+      <ThemeProvider>
         <CartProvider>
           <App />
         </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+      </ThemeProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );

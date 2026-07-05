@@ -10,7 +10,7 @@ async function seed() {
     const password_hash = await bcrypt.hash('admin12345', 10);
     await User.create({
       name: 'Store Admin',
-      email: '[email protected]',
+      email: 'admin@ngipstore.com',
       password_hash,
       role: 'admin',
     });

@@ -113,6 +113,19 @@ export default function POS() {
   async function handleCheckout() {
     if (!cart.length) return;
 
+    if (paymentMethod === "cash") {
+      if (!tendered || tendered.trim() === "") {
+        setError("Please enter the amount tendered.");
+        return;
+      }
+
+      if (parseFloat(tendered) < total) {
+        setError("Insufficient amount tendered.");
+        return;
+      }
+    }
+    if (!cart.length) return;
+
     setSubmitting(true);
     setError('');
 
@@ -124,7 +137,9 @@ export default function POS() {
         })),
         payment_method: paymentMethod,
         amount_tendered:
-          paymentMethod === 'cash' ? parseFloat(tendered) || 0 : null,
+          paymentMethod === "cash"
+            ? parseFloat(tendered)
+            : null,
         discount: 0,
       });
 

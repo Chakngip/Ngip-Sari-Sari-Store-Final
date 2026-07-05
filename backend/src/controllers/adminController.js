@@ -104,21 +104,61 @@ async function dashboardStats(req, res, next) {
 // GET /api/admin/orders?status=&source=  (admin only) — all orders, online + POS
 async function listOrders(req, res, next) {
   try {
-    const { status, source } = req.query;
+    const { status, source, startDate, endDate } = req.query;
+
     const where = {};
-    if (status) where.status = status;
-    if (source) where.order_source = source;
+
+    // Status Filter
+    if (status) {
+      where.status = status;
+    }
+
+    // Source Filter
+    if (source) {
+      where.order_source = source;
+    }
+
+    // Date Filter
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      where.createdAt = {
+        [Op.between]: [start, end],
+      };
+    }
+
+    console.log("Query:", req.query);
+    console.log("Where:", where);
 
     const orders = await Order.findAll({
       where,
       include: [
-        { model: OrderItem, as: 'items' },
-        { model: User, as: 'customer', attributes: ['id', 'name', 'email'] },
-        { model: User, as: 'cashier', attributes: ['id', 'name'] },
+        {
+          model: OrderItem,
+          as: "items",
+        },
+        {
+          model: User,
+          as: "customer",
+          attributes: ["id", "name", "email"],
+        },
+        {
+          model: User,
+          as: "cashier",
+          attributes: ["id", "name"],
+        },
       ],
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
+
+    console.log("Orders Found:", orders.length);
+
     res.json(orders);
+
   } catch (err) {
     next(err);
   }
@@ -135,7 +175,18 @@ async function updateOrderStatus(req, res, next) {
 
     const order = await Order.findByPk(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
+    
+    if (order.status === "cancelled") {
+      return res.status(400).json({
+        message: "Cancelled orders can no longer be modified.",
+      });
+    }
 
+    if (order.status === "completed") {
+      return res.status(400).json({
+        message: "Completed orders can no longer be modified.",
+      });
+    }
     order.status = status;
     await order.save();
     res.json(order);

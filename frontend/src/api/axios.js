@@ -14,9 +14,8 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('ngip_token');
-      localStorage.removeItem('ngip_user');
-      window.location.href = '/login';
+      console.log("401 ERROR");
+      console.log(err.config.url);
     }
     return Promise.reject(err);
   }

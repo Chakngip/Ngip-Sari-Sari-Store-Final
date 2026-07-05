@@ -62,6 +62,33 @@ async function createSale(req, res, next) {
     const tendered = amount_tendered != null ? Number(amount_tendered) : null;
     const change = payment_method === 'cash' && tendered != null ? tendered - total : null;
 
+    // ================= VALIDATION =================
+    if (payment_method === "cash") {
+
+    if (tendered === null || Number.isNaN(tendered)) {
+      await t.rollback();
+      return res.status(400).json({
+        message: "Amount tendered is required."
+      });
+    }
+
+    if (tendered <= 0) {
+      await t.rollback();
+      return res.status(400).json({
+        message: "Amount tendered must be greater than zero."
+      });
+    }
+
+    if (tendered < total) {
+      await t.rollback();
+      return res.status(400).json({
+        message: "Insufficient amount tendered."
+      });
+    }
+
+  }
+  // ==============================================
+
     const receipt_number = await generateReceiptNumber();
 
     const order = await Order.create({
@@ -72,7 +99,7 @@ async function createSale(req, res, next) {
       subtotal,
       discount: discountAmt,
       total_amount: total,
-      status: 'paid',
+      status: 'completed',
       payment_method,
       amount_tendered: tendered,
       change_due: change,

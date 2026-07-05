@@ -3,22 +3,30 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Login() {
-  const { login, loading, error } = useAuth();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login, loading, error } = useAuth();
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     try {
       const user = await login({ email, password });
-      const next = searchParams.get('next');
-      if (user.role === 'admin') navigate('/admin/dashboard');
-      else if (user.role === 'cashier') navigate('/cashier/pos');
-      else navigate(next || '/');
-    } catch {
-      // error already set in context
+
+      console.log("LOGIN SUCCESS");
+      console.log(user);
+
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "cashier") {
+        navigate("/cashier/pos");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.log("LOGIN FAILED", err);
     }
   }
 

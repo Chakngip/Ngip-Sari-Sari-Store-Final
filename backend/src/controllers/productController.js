@@ -102,19 +102,8 @@ async function generateUniqueBarcode() {
     });
 
     if (!existing) {
-      return barcode;
+      return barcode;con
     }
-  }
-}
-async function generateBarcode(req, res, next) {
-  try {
-    const barcode = await generateUniqueBarcode();
-
-    res.json({
-      barcode,
-    });
-  } catch (err) {
-    next(err);
   }
 }
 
@@ -124,7 +113,6 @@ async function createProduct(req, res, next) {
     const {
       name,
       description,
-      barcode,
       price,
       stock_qty,
       low_stock_threshold,
@@ -199,5 +187,5 @@ async function lowStockProducts(req, res, next) {
 }
 
 module.exports = {
-  listProducts, getProduct, createProduct, updateProduct, deleteProduct, lowStockProducts, generateBarcode
+  listProducts, getProduct, createProduct, updateProduct, deleteProduct, lowStockProducts
 };

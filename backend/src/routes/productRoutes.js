@@ -6,7 +6,6 @@ const {
   updateProduct,
   deleteProduct,
   lowStockProducts,
-  generateBarcode,
 } = require('../controllers/productController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
@@ -14,7 +13,6 @@ const roleMiddleware = require('../middlewares/roleMiddleware');
 // Public / any logged-in role (customer app, POS lookup) can read
 router.get('/', listProducts);
 router.get('/low-stock', authMiddleware, roleMiddleware('admin'), lowStockProducts);
-router.get("/generate-barcode", authMiddleware, roleMiddleware('admin'), generateBarcode);
 router.get('/:id', getProduct);
 
 // Admin-only writes

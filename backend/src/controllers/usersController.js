@@ -1,6 +1,28 @@
 const { User, Order } = require('../models');
 const { Op } = require('sequelize');
 
+async function updateTheme(req, res, next) {
+  try {
+    const { theme } = req.body;
+
+    if (!["light", "dark"].includes(theme)) {
+      return res.status(400).json({
+        message: "Invalid theme",
+      });
+    }
+
+    req.user.theme = theme;
+    await req.user.save();
+
+    res.json({
+      message: "Theme updated",
+      theme: req.user.theme,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /api/admin/users?role=&search=  (admin only)
 async function listUsers(req, res, next) {
   try {
@@ -69,4 +91,4 @@ async function setUserStatus(req, res, next) {
   }
 }
 
-module.exports = { listUsers, getUser, setUserStatus };
+module.exports = { listUsers, getUser, setUserStatus, updateTheme };

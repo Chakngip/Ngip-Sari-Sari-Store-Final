@@ -44,8 +44,8 @@ export default function Inventory() {
 
   return (
     <Layout>
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="h-[calc(100vh-64px)] flex flex-col p-8">
+        <div className="flex items-center justify-between mb-6 shrink-0">
           <div>
             <h1 className="font-display text-2xl font-bold mb-1">Inventory</h1>
             <p className="text-ngip-muted text-sm">
@@ -80,9 +80,9 @@ export default function Inventory() {
               Show low-stock items only
             </label>
 
-            <div className="bg-ngip-panel border border-white/5 rounded-2xl overflow-hidden">
+            <div className="flex-1 overflow-y-auto bg-ngip-panel border border-white/5 rounded-2xl">
               <table className="w-full text-sm">
-                <thead className="text-left text-ngip-muted text-xs border-b border-white/5">
+                <thead className="text-left text-ngip-muted text-xs border-b border-white/5 sticky top-0 bg-ngip-panel z-10">
                   <tr>
                     <th className="px-4 py-3">Product</th>
                     <th className="px-4 py-3">Category</th>
@@ -123,7 +123,7 @@ export default function Inventory() {
         ) : (
           <div className="bg-ngip-panel border border-white/5 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="text-left text-ngip-muted text-xs border-b border-white/5">
+              <thead className="text-left text-ngip-muted text-xs border-b border-white/5 sticky top-0 bg-ngip-panel z-10">
                 <tr>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Product</th>

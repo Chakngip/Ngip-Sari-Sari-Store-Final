@@ -8,6 +8,9 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem('ngip_user');
     return stored ? JSON.parse(stored) : null;
   });
+
+  console.log("AuthContext user:", user);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -16,9 +19,18 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       const { data } = await api.post('/auth/login', credentials);
+
+      console.log("API RESPONSE:", data);
+
       localStorage.setItem('ngip_token', data.token);
       localStorage.setItem('ngip_user', JSON.stringify(data.user));
+
+      console.log("LOCAL STORAGE USER:", localStorage.getItem("ngip_user"));
+
       setUser(data.user);
+
+      console.log("SET USER:", data.user);
+
       return data.user;
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');

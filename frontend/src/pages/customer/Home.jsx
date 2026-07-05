@@ -3,6 +3,7 @@ import api from '../../api/axios';
 import Navbar from '../../components/customer/Navbar.jsx';
 import ProductCard from '../../components/customer/ProductCard.jsx';
 import { useCart } from '../../context/CartContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,10 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState('');
   const [toast, setToast] = useState('');
   const { addItem } = useCart();
+  const cart = useCart();
+  console.log(cart);
+  const { user } = useAuth();
+  console.log("HOME USER:", user);
 
   useEffect(() => {
     api.get('/categories').then(({ data }) => setCategories(data)).catch(() => {});

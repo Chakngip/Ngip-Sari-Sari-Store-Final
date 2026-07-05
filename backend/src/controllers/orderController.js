@@ -1,6 +1,7 @@
 const { sequelize, Product, Order, OrderItem, Payment, User } = require('../models');
 const { generateReceiptNumber, buildReceiptPayload } = require('../utils/receiptGenerator');
 const { applyStockChange } = require('../utils/inventory');
+const { Op } = require('sequelize');
 
 // POST /api/orders  (customer) — checkout
 // body: { items: [{ product_id, quantity }], payment_method, delivery_address }
@@ -101,11 +102,90 @@ async function listMyOrders(req, res, next) {
   }
 }
 
+// GET /api/admin/orders
+async function listAllOrders(req, res, next) {
+  console.log("========== listAllOrders ==========");
+  console.log("Query:", req.query);
+
+  try {
+    const { status, startDate, endDate } = req.query;
+
+    const where = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      where.createdAt = {
+        [Op.between]: [start, end],
+      };
+    }
+
+    console.log("Where:", where);
+
+    const orders = await Order.findAll({
+      where,
+      include: [
+        { model: OrderItem, as: "items" },
+        {
+          model: User,
+          as: "customer",
+          attributes: ["id", "name", "email"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    console.log("Orders Found:", orders.length);
+
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /api/admin/orders/new-count
+async function getNewOrderCount(req, res, next) {
+  try {
+    const count = await Order.count({
+      where: {
+        status: 'pending',
+      },
+    });
+
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /api/orders/:id  (owner or admin)
 async function getOrder(req, res, next) {
   try {
     const order = await Order.findByPk(req.params.id, {
-      include: [{ model: OrderItem, as: 'items' }, { model: User, as: 'customer', attributes: ['id', 'name', 'email'] }],
+      include: [
+        {
+          model: OrderItem,
+          as: "items",
+        },
+        {
+          model: User,
+          as: "customer",
+          attributes: ["id", "name", "email", "phone"],
+        },
+        {
+          model: User,
+          as: "cashier",
+          attributes: ["id", "name"],
+        },
+      ],
     });
     if (!order) return res.status(404).json({ message: 'Order not found' });
     if (req.user.role === 'customer' && order.user_id !== req.user.id) {
@@ -170,4 +250,41 @@ async function cancelOrder(req, res, next) {
   }
 }
 
-module.exports = { createOrder, listMyOrders, getOrder, getOrderReceipt, cancelOrder };
+// PUT /api/admin/orders/:id/complete
+async function completeOrder(req, res, next) {
+  try {
+    const order = await Order.findByPk(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    // Only POS orders can use this endpoint
+    if (order.order_source !== "pos") {
+      return res.status(400).json({
+        message: "Only POS orders can be completed.",
+      });
+    }
+
+    // Already completed
+    if (order.status === "completed") {
+      return res.status(400).json({
+        message: "Order is already completed.",
+      });
+    }
+
+    order.status = "completed";
+    await order.save();
+
+    res.json({
+      message: "Order completed successfully.",
+      order,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { createOrder, listMyOrders, getOrder, getOrderReceipt, cancelOrder, listAllOrders, getNewOrderCount,completeOrder };
