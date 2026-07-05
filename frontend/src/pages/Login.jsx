@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login, loading, error } = useAuth();
   const navigate = useNavigate();
 
@@ -37,11 +37,18 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-ngip-accent text-ngip-bg font-display font-bold text-2xl mb-3">
             N
           </div>
-          <h1 className="font-display text-2xl font-bold">Ngip Sari-Sari Store</h1>
-          <p className="text-ngip-muted text-sm mt-1">Admin &amp; Cashier sign in</p>
+          <h1 className="font-display text-2xl font-bold">
+            Ngip Sari-Sari Stores
+          </h1>
+          <p className="text-ngip-muted text-sm mt-1">
+            Admin &amp; Cashier sign in
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-ngip-panel border border-white/5 rounded-2xl p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-ngip-panel border border-white/5 rounded-2xl p-6 space-y-4"
+        >
           {error && (
             <div className="text-sm bg-ngip-accent2/10 text-ngip-accent2 border border-ngip-accent2/30 rounded-lg px-3 py-2">
               {error}
@@ -59,7 +66,9 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="block text-xs text-ngip-muted mb-1">Password</label>
+            <label className="block text-xs text-ngip-muted mb-1">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -74,11 +83,14 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-ngip-accent text-ngip-bg font-semibold rounded-lg py-2.5 text-sm hover:opacity-90 transition disabled:opacity-50"
           >
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? "Signing in…" : "Sign in"}
           </button>
 
           <p className="text-center text-xs text-ngip-muted">
-            New to Ngip? <Link to="/register" className="text-ngip-accent hover:underline">Create an account</Link>
+            New to Ngip?{" "}
+            <Link to="/register" className="text-ngip-accent hover:underline">
+              Create an account
+            </Link>
           </p>
         </form>
       </div>
