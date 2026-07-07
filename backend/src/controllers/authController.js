@@ -117,7 +117,7 @@ async function me(req, res, next) {
         'email',
         'phone',
         'role',
-        'address',
+        'delivery_address',
         'is_active',
         'theme',
       ],

@@ -6,6 +6,7 @@ import Cart from './pages/customer/Cart.jsx';
 import Checkout from './pages/customer/Checkout.jsx';
 import OrderHistory from './pages/customer/OrderHistory.jsx';
 import OrderDetail from './pages/customer/OrderDetail.jsx';
+import Profile from "./pages/customer/Profile";
 import Dashboard from './pages/admin/Dashboard.jsx';
 import Products from './pages/admin/Products.jsx';
 import Cashiers from './pages/admin/Cashiers.jsx';
@@ -27,7 +28,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-
+      {/* Customer */}
       <Route path="/checkout" element={
         <ProtectedRoute allowedRoles={['customer']}><Checkout /></ProtectedRoute>
       } />
@@ -36,6 +37,11 @@ export default function App() {
       } />
       <Route path="/orders/:id" element={
         <ProtectedRoute allowedRoles={['customer']}><OrderDetail /></ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute allowedRoles={['customer']}>
+          <Profile />
+        </ProtectedRoute>
       } />
 
       {/* Admin */}
@@ -71,6 +77,7 @@ export default function App() {
       <Route path="/cashier/shifts" element={
         <ProtectedRoute allowedRoles={['cashier', 'admin']}><ShiftHistory /></ProtectedRoute>
       } />
+
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -3,14 +3,101 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/customer/Navbar.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import api from '../../api/axios';
+import { useEffect } from "react";
+import MapPicker from "../../components/customer/MapPicker";
+import {
+  searchAddress,
+  reverseGeocode,
+} from "../../services/locationService";
+import { MapPin } from "lucide-react";
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
-  const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [form, setForm] = useState({
+  delivery_address: "",
+  latitude: null,
+  longitude: null,
+  payment_method: "cod",
+});
+
+  const [position, setPosition] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+  loadProfile();
+  }, []);
+
+  async function loadProfile() {
+    try {
+      const { data } = await api.get("/user/profile");
+
+      setForm((prev) => ({
+        ...prev,
+        delivery_address: data.delivery_address || "",
+        latitude: data.latitude,
+        longitude: data.longitude,
+      }));
+
+      if (data.latitude && data.longitude) {
+        setPosition({
+          lat: Number(data.latitude),
+          lng: Number(data.longitude),
+        });
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  async function findAddress() {
+    if (!form.delivery_address.trim()) return;
+
+    const result = await searchAddress(form.delivery_address);
+
+    if (!result) {
+      alert("Address not found.");
+      return;
+    }
+
+    setPosition({
+      lat: result.lat,
+      lng: result.lng,
+    });
+
+    setForm((prev) => ({
+      ...prev,
+      delivery_address: result.address,
+      latitude: result.lat,
+      longitude: result.lng,
+    }));
+  }
+  function getCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      setPosition({
+        lat,
+        lng,
+      });
+
+      const address = await reverseGeocode(lat, lng);
+
+      setForm((prev) => ({
+        ...prev,
+        delivery_address: address,
+        latitude: lat,
+        longitude: lng,
+      }));
+    });
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -19,8 +106,10 @@ export default function Checkout() {
     try {
       const { data } = await api.post('/orders', {
         items: items.map((i) => ({ product_id: i.product.id, quantity: i.quantity })),
-        payment_method: paymentMethod,
-        delivery_address: address,
+        payment_method: form.payment_method,
+        delivery_address: form.delivery_address,
+        latitude: position?.lat || null,
+        longitude: position?.lng || null,
       });
       clearCart();
       navigate(`/orders/${data.order.id}`);
@@ -51,19 +140,118 @@ export default function Checkout() {
         <form onSubmit={handleSubmit} className="bg-ngip-panel border border-white/5 rounded-2xl p-6 space-y-4">
           {error && <div className="text-ngip-accent2 text-sm">{error}</div>}
 
-          <div>
-            <label className="block text-xs text-ngip-muted mb-1">Delivery Address</label>
-            <textarea
-              required rows={3} value={address} onChange={(e) => setAddress(e.target.value)}
-              placeholder="House/unit no., street, barangay, city"
-              className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-ngip-accent"
+          <div className="relative">
+
+            <MapPin
+                size={18}
+                className="absolute left-4 top-4 text-ngip-muted"
             />
+
+            <input
+                value={form.delivery_address}
+                onChange={(e)=>
+                    setForm({
+                        ...form,
+                        delivery_address:e.target.value,
+                    })
+                }
+                className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-white/10
+                    bg-transparent
+                    pl-12
+                    pr-28
+                    py-3
+                    focus:border-ngip-accent
+                    focus:outline-none
+                "
+            />
+
+            <button
+                type="button"
+                onClick={findAddress}
+                className="
+                    absolute
+                    right-2
+                    top-2
+                    px-4
+                    py-2
+                    rounded-lg
+                    bg-ngip-accent
+                    text-ngip-bg
+                    text-sm
+                "
+            >
+                Find
+            </button> 
+            <div className="space-y-2 mt-4">
+
+              <div className="flex justify-between items-center">
+
+                  <label className="font-medium">
+                      Delivery Location
+                  </label>
+
+                  <button
+                      type="button"
+                      onClick={getCurrentLocation}
+                      className="
+                          px-4
+                          py-2
+                          rounded-lg
+                          bg-ngip-accent
+                          text-ngip-bg
+                          text-sm
+                      "
+                  >
+                      📍 Current Location
+                  </button>
+
+              </div>
+
+              <MapPicker
+                  position={position}
+                  setPosition={setPosition}
+                  onLocationChange={async (lat, lng) => {
+
+                      setPosition({
+                          lat,
+                          lng,
+                      });
+
+                      const address = await reverseGeocode(lat, lng);
+
+                      setForm(prev => ({
+                          ...prev,
+                          delivery_address: address,
+                          latitude: lat,
+                          longitude: lng,
+                      }));
+
+                  }}
+              />
+
+              <p className="text-xs text-ngip-muted">
+                  Click or drag the marker to choose your delivery location.
+              </p>
+
           </div>
+                       
+        </div>
+        
 
           <div>
             <label className="block text-xs text-ngip-muted mb-1">Payment Method</label>
             <select
-              value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
+              value={form.payment_method}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    payment_method: e.target.value,
+                  })
+                }
               className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-ngip-accent"
             >
               <option value="cod">Cash on Delivery</option>

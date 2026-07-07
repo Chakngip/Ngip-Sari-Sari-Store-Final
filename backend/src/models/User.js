@@ -16,7 +16,7 @@ const User = sequelize.define('User', {
   email: {
     type: DataTypes.STRING,
     unique: true,
-    allowNull: true,
+    allowNull: false,
   },
 
   phone: {
@@ -36,12 +36,6 @@ const User = sequelize.define('User', {
     defaultValue: 'customer',
   },
 
-  address: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-
-  // ⭐ NEW
   theme: {
     type: DataTypes.ENUM('light', 'dark'),
     allowNull: false,
@@ -52,6 +46,32 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+
+  gcash_number: {
+  type: DataTypes.STRING,
+  allowNull: true,
+  },
+
+  delivery_address: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+
+  latitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true,
+  },
+
+  longitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true,
+  },
+
+  delivery_notes: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+
 
 }, {
   tableName: 'users',

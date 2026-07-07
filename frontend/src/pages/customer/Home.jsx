@@ -44,122 +44,205 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <div className="mb-8 rounded-3xl overflow-hidden bg-gradient-to-r from-ngip-accent to-yellow-500 text-ngip-bg p-8 shadow-xl">
-        <div className="mb-6">
-          <h1 className="font-display text-2xl font-bold mb-1">
-            Shop the Store
-          </h1>
-          <p className="text-ngip-muted text-sm">
-            Everyday essentials, straight from Ngip Sari-Sari Store.
-          </p>
-        </div>
-        <p className="uppercase tracking-widest text-xs font-semibold mb-2">
-          Welcome to
-        </p>
+        <div className="max-w-7xl mx-auto px-6 py-6 space-y-8">
+          <div className="
+            rounded-3xl
+            bg-gradient-to-r
+            from-ngip-accent
+            via-yellow-400
+            to-yellow-300
+            text-ngip-bg
+            p-8
+            lg:p-12
+            shadow-xl
+            ">
 
-        <h1 className="font-display text-4xl font-bold mb-3">
-          Ngip Sari-Sari Store
-        </h1>
+            <div className="max-w-2xl">
 
-        <p className="max-w-xl opacity-90 mb-6">
-          Everyday essentials, snacks, beverages, groceries and household
-          products delivered quickly to your doorstep.
-        </p>
+            <p className="uppercase tracking-[4px] text-xs font-bold opacity-80 mb-3">
+            WELCOME TO
+            </p>
 
-        <button
-          onClick={() =>
+            <h1 className="font-display text-5xl font-bold leading-tight mb-4">
+            Ngip Sari-Sari Store
+            </h1>
+
+            <p className="text-lg opacity-90 mb-8">
+            Everyday essentials, groceries, snacks and beverages delivered right to your doorstep.
+            </p>
+
+            <button
+            onClick={() =>
             document
-              .getElementById("products")
-              ?.scrollIntoView({ behavior: "smooth" })
-          }
-          className="bg-ngip-bg text-ngip-accent px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
-        >
-          Shop Now →
-        </button>
-        <div className="relative mb-6 max-w-lg">
-          <FiSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-ngip-muted"
-            size={18}
-          />
+            .getElementById("products")
+            ?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="
+            bg-ngip-bg
+            text-ngip-accent
+            px-7
+            py-3
+            rounded-2xl
+            font-semibold
+            hover:scale-105
+            transition
+            "
+            >
+            Shop Now →
+            </button>
 
-          <input
+          </div>
+
+        </div>
+        <div className="bg-white dark:bg-ngip-panel rounded-3xl p-6 shadow border border-gray-200 dark:border-white/5">
+          <div className="relative max-w-lg">
+            <FiSearch
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+              />
+            <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search snacks, groceries, drinks..."
-            className=" w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-ngip-panel border border-gray-200 dark:border-white/5 shadow-sm outline-none transition-all focus:ring-2 focus:ring-ngip-accent focus:border-ngip-accent "
-          />
+            className="
+              w-full
+              pl-12
+              pr-4
+              py-4
+              rounded-2xl
+              bg-gray-50
+              dark:bg-ngip-bg
+              border
+              border-gray-200
+              dark:border-white/10
+              focus:ring-2
+              focus:ring-ngip-accent
+              "
+              />
+            </div> 
         </div>
+        <div className="
+            bg-white
+            dark:bg-ngip-panel
+            rounded-3xl
+            p-5
+            shadow
+            border
+            border-gray-200
+            dark:border-white/5
+            ">
 
-        <div className="flex gap-3 overflow-x-auto pb-2 mb-8 scrollbar-hide">
-          <button
-            onClick={() => setActiveCategory("")}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
-              activeCategory === ""
-                ? "bg-ngip-accent text-ngip-bg shadow-lg"
-                : "bg-white dark:bg-ngip-panel text-gray-700 dark:text-ngip-text border border-gray-200 dark:border-white/5 hover:border-ngip-accent hover:text-ngip-accent"
-            } `}
-          >
-            🛒 All
-          </button>
-
-          {categories.map((c) => (
+          <div className="flex gap-3 overflow-x-auto pb-2">
             <button
-              key={c.id}
-              onClick={() => setActiveCategory(c.id)}
+              onClick={() => setActiveCategory("")}
               className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                activeCategory === c.id
+                activeCategory === ""
                   ? "bg-ngip-accent text-ngip-bg shadow-lg"
-                  : "bg-white dark:bg-ngip-panel border border-gray-200 dark:border-white/5 hover:border-ngip-accent"
-              }`}
+                  : "bg-white dark:bg-ngip-panel text-gray-700 dark:text-ngip-text border border-gray-200 dark:border-white/5 hover:border-ngip-accent hover:text-ngip-accent"
+              } `}
             >
-              {c.name}
+              🛒 All
             </button>
-          ))}
+
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setActiveCategory(c.id)}
+                className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  activeCategory === c.id
+                    ? "bg-ngip-accent text-ngip-bg shadow-lg"
+                    : "bg-white dark:bg-ngip-panel border border-gray-200 dark:border-white/5 hover:border-ngip-accent"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
         </div>
-
-        <div className="flex flex-col h-[70vh]">
+        <div
+          id="products"
+          className="
+            bg-white
+            dark:bg-ngip-panel
+            rounded-3xl
+            border
+            border-gray-200
+            dark:border-white/5
+            shadow
+            overflow-hidden
+          "
+        >
+          {/* Fixed Header */}
           <div
-            id="products"
-            className="flex justify-between items-center mb-6"
-          ></div>
+            className="
+              sticky
+              top-0
+              z-10
+              bg-white
+              dark:bg-ngip-panel
+              border-b
+              border-gray-200
+              dark:border-white/5
+              px-6
+              py-5
+            "
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-2xl font-bold">
+                  Featured Products
+                </h2>
 
-          <div>
-            <h2 className="font-display text-2xl font-bold">
-              Featured Products
-            </h2>
+                <p className="text-sm text-gray-500 dark:text-ngip-muted mt-1">
+                  Browse our latest available products.
+                </p>
+              </div>
 
-            <p className="text-sm text-ngip-muted">
-              Browse our latest available products.
-            </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 dark:text-ngip-muted">
+                  Showing
+                </span>
+
+                <span className="px-4 py-2 rounded-full bg-ngip-accent/15 text-ngip-accent font-semibold">
+                  {products.length}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <span className="text-sm text-ngip-muted">
-            {products.length} products
-          </span>
-          <div className=" flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-ngip-accent scrollbar-track-transparent ">
+          {/* Scrollable Product List */}
+          <div className="max-h-[70vh] overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-ngip-accent scrollbar-track-transparent">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((p) => (
-                <ProductCard key={p.id} product={p} onAdd={handleAdd} />
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  onAdd={handleAdd}
+                />
               ))}
+
               {products.length === 0 && (
                 <div className="col-span-full py-20 text-center">
                   <div className="text-6xl mb-4">📦</div>
 
-                  <h3 className="font-semibold text-lg">No products found</h3>
+                  <h3 className="font-semibold text-lg">
+                    No products found
+                  </h3>
 
-                  <p className="text-ngip-muted">Try another keyword.</p>
+                  <p className="text-gray-500 dark:text-ngip-muted">
+                    Try another keyword.
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
-
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ngip-accent text-ngip-bg text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
           {toast}
         </div>
       )}
-    </div>
+      </div>
   );
 }

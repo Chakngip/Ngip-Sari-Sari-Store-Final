@@ -39,7 +39,7 @@ async function listUsers(req, res, next) {
 
     const users = await User.findAll({
       where,
-      attributes: ['id', 'name', 'email', 'phone', 'role', 'address', 'is_active', 'createdAt'],
+      attributes: ['id', 'name', 'email', 'phone', 'role', 'delivery_address',"latitude","longitude","delivery_notes", 'is_active', 'createdAt'],
       order: [['createdAt', 'DESC']],
     });
     res.json(users);
@@ -91,4 +91,128 @@ async function setUserStatus(req, res, next) {
   }
 }
 
-module.exports = { listUsers, getUser, setUserStatus, updateTheme };
+// GET /api/user/profile  
+async function getProfile(req, res, next) {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "phone",
+        "gcash_number",
+        "delivery_address",
+        "latitude",
+        "longitude",
+        "delivery_notes",
+      ],
+    });
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PUT /api/user/profile
+async function updateProfile(req, res, next) {
+  try {
+    const {
+      name,
+      phone,
+      gcash_number,
+      delivery_address,
+      latitude,
+      longitude,
+      delivery_notes,
+    } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.name = name;
+    user.phone = phone;
+    user.gcash_number = gcash_number;
+    user.delivery_address = delivery_address;
+    user.latitude = latitude;
+    user.longitude = longitude;
+    user.delivery_notes = delivery_notes;
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const bcrypt = require("bcryptjs");
+
+async function changePassword(req, res, next) {
+  try {
+    const {
+      current_password,
+      new_password,
+      confirm_password,
+    } = req.body;
+
+    if (
+      !current_password ||
+      !new_password ||
+      !confirm_password
+    ) {
+      return res.status(400).json({
+        message: "All fields are required.",
+      });
+    }
+
+    if (new_password !== confirm_password) {
+      return res.status(400).json({
+        message: "Passwords do not match.",
+      });
+    }
+
+    if (new_password.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters.",
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+
+    const valid = await bcrypt.compare(
+      current_password,
+      user.password_hash
+    );
+
+    if (!valid) {
+      return res.status(400).json({
+        message: "Current password is incorrect.",
+      });
+    }
+
+    user.password_hash = await bcrypt.hash(
+      new_password,
+      10
+    );
+
+    await user.save();
+
+    res.json({
+      message: "Password changed successfully.",
+    });
+
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { listUsers, getUser, setUserStatus, updateTheme,  getProfile, updateProfile, changePassword, };
